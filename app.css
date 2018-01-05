@@ -1,0 +1,25 @@
+﻿body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+span {
+    font-style: italic;
+}
+
+/* http://www.html5gamedevs.com/topic/21639-phaser-scale-manager-show-all-not-working/ */
+
+html, body {
+    margin: 0 auto;
+    padding: 0;
+    background: #0000ff ;
+}
+
+canvas {
+    border: 1px solid #00ff00;
+}
+
+#content {
+    width: 99vw;
+    height: 99vh;
+    margin: 0 auto;
+}
