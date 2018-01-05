@@ -46,6 +46,8 @@ var Preloader = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Preloader.prototype.preload = function () {
+        this.load.baseURL = 'https://2bam.github.com/qro_cli/';
+        this.load.crossOrigin = 'anonymous';
         //  Set-up our preloader sprite
         this.preloadBar = this.add.sprite(20, 250, 'preloadBar');
         this.load.setPreloadSprite(this.preloadBar);
