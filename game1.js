@@ -264,7 +264,8 @@ var Hunt = /** @class */ (function (_super) {
         this.lbl_treasures.anchor.set(0, 0);
         this.lbl_rank = game.add.text(100, 300, "...", styleTiny);
         this.lbl_rank.anchor.set(0, 0);
-        this.lbl_debug = game.add.text(300, 300, "DEBUG\n", styleTiny);
+        var styleTiny = { font: "bold 10px Arial", fill: "#fff", boundsAlignH: "left", boundsAlignV: "middle" };
+        this.lbl_debug = game.add.text(10, 400, "DEBUG\n", styleTiny);
         this.lbl_debug.anchor.set(0, 0);
         //  Centers the text
         text.anchor.set(0.5);
@@ -305,11 +306,25 @@ var Hunt = /** @class */ (function (_super) {
         Instascan.Camera.getCameras().then(function (cameras) {
             if (cameras.length > 0) {
                 var ds = '';
+                var scoredCams = new Array(cameras.length);
                 for (var i = 0; i < cameras.length; i++) {
-                    ds += ',[' + i + ']' + cameras[i].name + '\n';
+                    var name = cameras[i].name;
+                    var score = 1;
+                    if (name.match('/front/i'))
+                        score--;
+                    else if (name.match('/back/i'))
+                        score++;
+                    ds += ',[' + i + ']' + name + ' (' + score + ')\n';
+                    scoredCams[i] = ({ 'i': i, 'cam': cameras[i], 'score': score });
                 }
-                self.lbl_debug.text += ds;
-                scanner.start(cameras[0]).then(function () {
+                scoredCams.sort(function (a, b) { return a.score - b.score; });
+                self.lbl_debug.text += scoredCams[0].i + ' <-- \n' + ds;
+                navigator.mediaDevices.enumerateDevices().then(function (devs) {
+                    devs
+                        .filter(function (d) { return d.kind === 'videoinput'; })
+                        .forEach(function (dev) { return self.lbl_debug.text += dev.deviceId + ')\n   ' + dev.label; });
+                });
+                scanner.start(scoredCams[0].cam).then(function () {
                     vid.onAccess.add(function () {
                         var spr = vid.addToWorld();
                         spr.anchor.setTo(0.5, 0);
