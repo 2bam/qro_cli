@@ -58,6 +58,7 @@ var Preloader = /** @class */ (function (_super) {
         //this.load.audio('music', 'assets/title.mp3', true);
         this.load.spritesheet('simon', 'assets/simon.png', 58, 96, 5);
         this.load.image('level1', 'assets/level1.png');
+        this.load.image('swap_btn', 'assets/swap-arrows.gif');
     };
     Preloader.prototype.create = function () {
         var tween = this.add.tween(this.preloadBar).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
@@ -222,6 +223,7 @@ function commGet(url, onLoad, onError) {
     request.send();
 }
 //TODO: On destroy, close Instascan
+//TODO: Bugfix for firefox double accepting: https://stackoverflow.com/questions/30047056/
 var Hunt = /** @class */ (function (_super) {
     __extends(Hunt, _super);
     function Hunt() {
@@ -272,15 +274,72 @@ var Hunt = /** @class */ (function (_super) {
         text.align = 'center';
         //vid.addToWorld();
         //var spr = vid.addToWorld(this.game.world.centerX, this.game.world.centerY);
-        this.createScanner(vid);
+        this.createScanner();
         //  Create our Timer
         var timer = game.time.create(false);
         timer.loop(5000, this.onStatusUpdate.bind(this), this);
         timer.start();
         this.onStatusUpdate();
-        //this.createScanner();
+        this.btn_swap_cam = game.add.button(game.world.centerX * 2 - 50, 50, 'swap_btn', this.onSwapClick, this, 2, 1, 0);
+        this.btn_swap_cam.anchor.set(0.5);
+        this.btn_swap_cam.scale.set(0.25);
     };
-    Hunt.prototype.createScanner = function (vid) {
+    Hunt.prototype.onSwapClick = function () {
+        var next = (this.curr_cam + 1) % this.scoredCameras.length;
+        this.startCamera(next);
+    };
+    Hunt.prototype.startCamera = function (scored_index) {
+        var self = this;
+        this.curr_cam = scored_index;
+        var scanner = this.scanner;
+        scanner.stop();
+        scanner.start(this.scoredCameras[scored_index].cam).then(function () {
+            self.vid.onAccess.add(function () {
+                var spr = self.vid.addToWorld();
+                spr.anchor.setTo(0.5, 0);
+                spr.position.setTo(self.game.world.centerX, 10);
+                spr.scale.setTo(0.33);
+                //self.createScanner(vid);
+                /*navigator.mediaDevices.enumerateDevices().then(devs => {
+                    devs
+                        .filter(d => d.kind === 'videoinput')
+                        .forEach(dev => {
+                            if (dev) {
+                                self.lbl_debug.text += String(dev) + '---\n';
+                                self.lbl_debug.text += String(dev.deviceId) + ')\n   ' + String(dev.label) + '\n';
+                            }
+                        });
+                });
+                */
+            });
+            //console.log("x", cameras[0]._stream);
+            //console.log("vid", game.vid);
+            //game.stream = cameras[0]._stream;
+            //game.vid.videoStream = cameras[0]._stream;
+            //game.vid.video = document.getElementById('preview') as HTMLVideoElement;
+            //ms = cameras[0]._stream;
+            //var asd = document.getElementById('preview');
+            //var videoElement = document.createElement("video");
+            //vid.videoStream = cameras[0]._stream;
+            //vid.video = x.video;//document.getElementById('preview') as HTMLVideoElement;
+            //vid.video = document.createElement("video");
+            //vid.video.setAttribute('autoplay', 'autoplay');
+            //vid.video.width = 400;
+            //vid.video.height = 400;
+            //(vid as any).getUserMediaSuccess(cameras[0]._stream);  //HACK: to set stream!
+            //console.log("camstart");
+            //(vid as any).connectToMediaStream(scanner.video, cameras[0]._stream);
+            var v = document.createElement("video");
+            v.setAttribute('autoplay', 'autoplay');
+            v.width = 400;
+            v.height = 400;
+            self.vid.video = scanner.video;
+            self.vid.getUserMediaSuccess(self.scoredCameras[scored_index].cam._stream); //HACK: to set stream!
+            //vid.startMediaStream(false);
+            //(vid as any).connectToMediaStream(v, scanner.video.srcObject);
+        });
+    };
+    Hunt.prototype.createScanner = function () {
         var self = this;
         //
         var scanner = this.scanner = new Instascan.Scanner({
@@ -308,7 +367,7 @@ var Hunt = /** @class */ (function (_super) {
                 var ds = '';
                 var scoredCams = new Array(cameras.length);
                 for (var i = 0; i < cameras.length; i++) {
-                    var name = cameras[i].name;
+                    var name = String(cameras[i].name);
                     var score = 1;
                     if (name.match('/front/i'))
                         score--;
@@ -319,50 +378,9 @@ var Hunt = /** @class */ (function (_super) {
                 }
                 scoredCams.sort(function (a, b) { return a.score - b.score; });
                 self.lbl_debug.text += scoredCams[0].i + ' <-- \n' + ds;
-                navigator.mediaDevices.enumerateDevices().then(function (devs) {
-                    devs
-                        .filter(function (d) { return d.kind === 'videoinput'; })
-                        .forEach(function (dev) {
-                        if (dev) {
-                            self.lbl_debug.text += String(dev) + '---\n';
-                            self.lbl_debug.text += String(dev.deviceId) + ')\n   ' + String(dev.label) + '\n';
-                        }
-                    });
-                });
-                scanner.start(scoredCams[0].cam).then(function () {
-                    vid.onAccess.add(function () {
-                        var spr = vid.addToWorld();
-                        spr.anchor.setTo(0.5, 0);
-                        spr.position.setTo(self.game.world.centerX, 10);
-                        spr.scale.setTo(0.33);
-                        //self.createScanner(vid);
-                    });
-                    //console.log("x", cameras[0]._stream);
-                    //console.log("vid", game.vid);
-                    //game.stream = cameras[0]._stream;
-                    //game.vid.videoStream = cameras[0]._stream;
-                    //game.vid.video = document.getElementById('preview') as HTMLVideoElement;
-                    //ms = cameras[0]._stream;
-                    //var asd = document.getElementById('preview');
-                    //var videoElement = document.createElement("video");
-                    //vid.videoStream = cameras[0]._stream;
-                    //vid.video = x.video;//document.getElementById('preview') as HTMLVideoElement;
-                    //vid.video = document.createElement("video");
-                    //vid.video.setAttribute('autoplay', 'autoplay');
-                    //vid.video.width = 400;
-                    //vid.video.height = 400;
-                    //(vid as any).getUserMediaSuccess(cameras[0]._stream);  //HACK: to set stream!
-                    //console.log("camstart");
-                    //(vid as any).connectToMediaStream(scanner.video, cameras[0]._stream);
-                    var v = document.createElement("video");
-                    v.setAttribute('autoplay', 'autoplay');
-                    v.width = 400;
-                    v.height = 400;
-                    vid.video = scanner.video;
-                    vid.getUserMediaSuccess(cameras[0]._stream); //HACK: to set stream!
-                    //vid.startMediaStream(false);
-                    //(vid as any).connectToMediaStream(v, scanner.video.srcObject);
-                });
+                self.scoredCameras = scoredCams;
+                self.curr_cam = scoredCams[0].i;
+                self.startCamera(0);
             }
             else {
                 console.error('No cameras found.');
