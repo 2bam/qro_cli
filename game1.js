@@ -399,8 +399,8 @@ var Login = /** @class */ (function (_super) {
     };
     Login.prototype.onCommLoad = function (response) {
         console.log("lbl2", this.lbl_user);
-        var j = JSON.parse(response);
         console.log("Comm response=", response);
+        var j = JSON.parse(response);
         if (j && j.uid && j.uid >= 0)
             this.game.state.start('Hunt');
         else
