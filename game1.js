@@ -46,7 +46,7 @@ var Preloader = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Preloader.prototype.preload = function () {
-        this.load.baseURL = 'https://2bam.github.com/qro_cli/';
+        this.load.baseURL = 'https://2bam.github.io/qro_cli/';
         this.load.crossOrigin = 'anonymous';
         //  Set-up our preloader sprite
         this.preloadBar = this.add.sprite(20, 250, 'preloadBar');
@@ -55,7 +55,7 @@ var Preloader = /** @class */ (function (_super) {
         this.load.image('tetas', 'assets/tetas.png');
         this.load.image('titlepage', 'assets/titlepage.jpg');
         this.load.image('logo', 'assets/logo.png');
-        this.load.audio('music', 'assets/title.mp3', true);
+        //this.load.audio('music', 'assets/title.mp3', true);
         this.load.spritesheet('simon', 'assets/simon.png', 58, 96, 5);
         this.load.image('level1', 'assets/level1.png');
     };
@@ -99,8 +99,8 @@ var Level1 = /** @class */ (function (_super) {
     }
     Level1.prototype.create = function () {
         this.background = this.add.sprite(0, 0, 'level1');
-        this.music = this.add.audio('music', 1, false);
-        this.music.play();
+        //this.music = this.add.audio('music', 1, false);
+        //this.music.play();
         this.player = new Player(this.game, 130, 284);
     };
     return Level1;
@@ -195,8 +195,9 @@ window.onload = function () {
         });
     }
 };
-var SERVER = "http://localhost:6470";
+//const SERVER: string = "http://localhost:6470";
 //const SERVER: string = "http://192.168.1.6:6470";
+var SERVER = "https://arcane-garden-75478.herokuapp.com"; //WITHOUT ENDING '/'
 function commGet(url, onLoad, onError) {
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
