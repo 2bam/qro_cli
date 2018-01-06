@@ -322,7 +322,12 @@ var Hunt = /** @class */ (function (_super) {
                 navigator.mediaDevices.enumerateDevices().then(function (devs) {
                     devs
                         .filter(function (d) { return d.kind === 'videoinput'; })
-                        .forEach(function (dev) { return self.lbl_debug.text += dev.deviceId + ')\n   ' + dev.label; });
+                        .forEach(function (dev) {
+                        if (dev) {
+                            self.lbl_debug.text += String(dev) + '---\n';
+                            self.lbl_debug.text += String(dev.deviceId) + ')\n   ' + String(dev.label) + '\n';
+                        }
+                    });
                 });
                 scanner.start(scoredCams[0].cam).then(function () {
                     vid.onAccess.add(function () {
