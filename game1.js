@@ -227,7 +227,6 @@ var Hunt = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Hunt.prototype.preload = function () {
-        this.load.image('logo', 'tetas.png');
     };
     Hunt.prototype.create = function () {
         var constraints = {
