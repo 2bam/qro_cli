@@ -221,6 +221,7 @@ function commGet(url, onLoad, onError) {
     };
     request.send();
 }
+//TODO: On destroy, close Instascan
 var Hunt = /** @class */ (function (_super) {
     __extends(Hunt, _super);
     function Hunt() {
@@ -246,7 +247,6 @@ var Hunt = /** @class */ (function (_super) {
         //this.vid.videoStream = ms;
         //this.vid.video = document.getElementById('preview') as HTMLVideoElement;
         //vid.startMediaStream(false, 600);
-        this.createScanner(vid);
         //var logo = this.game.add.sprite(this.game.world.centerX + 400, this.game.world.centerY, 'logo');
         //logo.anchor.setTo(0.5, 0.5);
         //var vs = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'logo');
@@ -264,11 +264,14 @@ var Hunt = /** @class */ (function (_super) {
         this.lbl_treasures.anchor.set(0, 0);
         this.lbl_rank = game.add.text(100, 300, "...", styleTiny);
         this.lbl_rank.anchor.set(0, 0);
+        this.lbl_debug = game.add.text(300, 300, "DEBUG\n", styleTiny);
+        this.lbl_debug.anchor.set(0, 0);
         //  Centers the text
         text.anchor.set(0.5);
         text.align = 'center';
         //vid.addToWorld();
         //var spr = vid.addToWorld(this.game.world.centerX, this.game.world.centerY);
+        this.createScanner(vid);
         //  Create our Timer
         var timer = game.time.create(false);
         timer.loop(5000, this.onStatusUpdate.bind(this), this);
@@ -298,8 +301,14 @@ var Hunt = /** @class */ (function (_super) {
         scanner.start(cam).then(c => {
             console.log("Scanner started ok");
         });*/
+        self = this;
         Instascan.Camera.getCameras().then(function (cameras) {
             if (cameras.length > 0) {
+                var ds = '';
+                for (var i = 0; i < cameras.length; i++) {
+                    ds += ',[' + i + ']' + cameras[i].name + '\n';
+                }
+                self.lbl_debug.text += ds;
                 scanner.start(cameras[0]).then(function () {
                     vid.onAccess.add(function () {
                         var spr = vid.addToWorld();
